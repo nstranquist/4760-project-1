@@ -3,3 +3,6 @@
 
 driver: driver.c
 	gcc -o driver driver.c -I .
+
+clean:
+	rm driver.o
