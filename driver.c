@@ -2,6 +2,10 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <getopt.h>
 
 typedef struct data_struct {
   time_t time; // Time stamp
@@ -14,17 +18,101 @@ void clearlog();
 char * getlog();
 int savelog(char * filename);
 
+// How to specify a main function to run? In a static archive library?
+
 int main(int argc, char** argv) {
-  printf("Hello, World!\n");
+  int option;
+  char * filename = NULL;
+  // Log info
+  printf("# of arguments provided: %d\n", argc);
+
+  if(argc == 1) {
+    // If no arguments provided, driver sends messages to the logger and saves in file 'messages.log'
+    filename = "messages.log";
+  }
+
+  else {
+    // Get the command line arguments
+    // optstring is simply  a list of characters, 
+    // each representing a single character option.
+    while((option = getopt(argc, argv, ":ht:")) != -1) {
+      printf("Option: %c\n", option);
+      switch(option) {
+        case ':':
+          printf("unkown option :\n");
+          break;
+        case '?':
+          printf("unknown option ?\n");
+          break;
+        case 'h':
+          printf("h: print Help usage message and terminate\n");
+          // Print help message and terminate
+          break;
+        case 't':
+          printf("t: time in seconds\n");
+          printf("%s\n", optarg);
+          int secondsInput = atoi(optarg);
+          // validate optarg to be a number
+          if(!secondsInput && optarg != "0") {
+            printf("Invalid time\n");
+            // thow error
+          }
+          // Messages are printed every 'sec' seconds
+          // Use random number generator to generate number between 0 and 2*seconds (from argument)
+          int sec;
+          int lower = 0;
+          int upper = 2 * secondsInput;
+
+          printf("Seconds provided to generate range: [%d - %2.d]\n", lower, upper);
+
+          // Generate random number between 0 and 2
+          int random =  rand() % (upper - lower + 1) + lower;
+          printf("Random number generated: %d\n", random);
+
+          break;
+        default:
+          printf("?: Unknown option\n");
+          break;
+      }
+    }
+    printf("next index: %d\n", optind);
+    printf("filename: %s\n", argv[optind]);
+    // if optind + 1 < argv.length then let user know that only the first non-option argument will be used as the filename
+    filename = argv[optind];
+  }
+
+  // Create file?
+
+  printf("Adding a new message\n");
+
+  char type = 'E';
+  const char * msg = "This is a test message";
+  // addmsg(type, msg);
 
   return 0;
 }
 
-// The function addmsg creates the data structure data_t by adding the time stamp to the supplied parameters message type
-// and message string, and inserts a copy of the data structure at the end of the list. It also verifies that the message type is a
-// valid message type and issues an error if it is invalid.
+/**
+ * The function addmsg creates the data structure data_t by adding the time stamp to the supplied parameters message type
+ * and message string, and inserts a copy of the data structure at the end of the list. It also verifies that the message type is a
+ * valid message type and issues an error if it is invalid.
+ */
 int addmsg (const char type, const char * msg) {
-
+  data_t * new_data = malloc(sizeof(data_t));
+  if (new_data == NULL) {
+    printf("Error: new_data is null");
+    return -1;
+  }
+  new_data->time = time(NULL);
+  new_data->type = type;
+  new_data->string = malloc(strlen(msg) + 1);
+  if (new_data->string == NULL) {
+    printf("Error: new_data->string is NULL (cannot be allocated with msg length)");
+    free(new_data);
+    return -1;
+  }
+  strcpy(new_data->string, msg);
+  return 0;
 }
 
 /**
