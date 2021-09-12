@@ -17,4 +17,3 @@ int savelog(char * filename);
 void printdata(data_t data);
 void printlist();
 void printtime(time_t time);
-char * gettime(time_t time);
