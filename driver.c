@@ -16,9 +16,6 @@ char * filename = "messages.log";
 
 int main(int argc, char** argv) {
   int option;
-  char * filename = NULL;
-  // Log info
-  printf("# of arguments provided: %d\n", argc);
 
   // Get the command line arguments
   // optstring is simply  a list of characters, 
@@ -26,15 +23,10 @@ int main(int argc, char** argv) {
   while((option = getopt(argc, argv, ":ht:")) != -1) {
     printf("Option: %c\n", option);
     switch(option) {
-      case ':':
-        printf("unkown option :\n");
-        break;
-      case '?':
-        printf("unknown option ?\n");
-        break;
       case 'h':
         printf("h: print Help usage message and terminate\n");
         // Print help message and terminate
+        return 0;
         break;
       case 't':
         printf("t: time in seconds\n");
@@ -68,13 +60,24 @@ int main(int argc, char** argv) {
     printf("filename is %s\n", argv[optind]);
     // then let user know that only the first non-option argument will be used as the filename
     filename = argv[optind];
-  } 
+  }
+  else {
+    printf("No filename provided. Using default name: %s\n", filename);
+  }
 
   printf("Adding a new message\n");
 
   char type = 'E';
-  const char * msg = "This is a test message";
-  // addmsg(type, msg);
+  char * msg = "This is a test message";
+  addmsg(type, msg);
+
+  type = 'W';
+  msg = "This is another test message";
+  addmsg(type, msg);
+
+  printf("Printing all messages in list\n");
+
+  printlist();
 
   return 0;
 }

@@ -1,0 +1,3 @@
+Hello! This is the first message to be logged.
+This is the second message to be logged.
+This is the third message to be logged.

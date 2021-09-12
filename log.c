@@ -34,9 +34,37 @@ int addmsg (const char type, const char * msg) {
     return -1;
   }
 
-  new_data->time = time(NULL);
+  printf("Message received: %s\n", msg);
+
+  // Get formatted time
+  time_t tm = time(NULL);
+  char * time_str = gettime(tm);
+  printf("Time string: %s", time_str);
+
+  int msg_length = strlen(msg) + strleng(time_str) + 1;
+
+  // Populate data structure
+  new_data->time = tm;
   new_data->type = type;
-  new_data->string = malloc(strlen(msg) + 1);
+  new_data->string = malloc(msg_length);
+
+  strcpy(new_data->string, msg);
+
+  // Add timestamp to message and type and message string parameters
+
+  // Add message to end of list
+  log_t * new_node = malloc(sizeof(log_t));
+  new_node->item = *new_data;
+  new_node->next = NULL;
+  
+  if (headptr == NULL)
+    headptr = new_node;
+  else {
+    tailptr->next = new_node;
+  }
+  tailptr = new_node;
+
+  printdata(*new_data);
 
   if (new_data->string == NULL) {
     perror("Error: new_data->string is NULL (cannot be allocated with msg length)");
@@ -44,7 +72,6 @@ int addmsg (const char type, const char * msg) {
     return -1;
   }
 
-  strcpy(new_data->string, msg);
   return 0;
 }
 
@@ -82,5 +109,51 @@ char * getlog() {
  * messages
  */
 void clearlog () {
+  headptr = NULL;
+  tailptr = NULL;
 
+
+  // Empty the list of logs and free the allocated memory
+  
+}
+
+// Utility function for printing the data structure to console
+void printdata(data_t data) {
+  printf("Type: %c\n", data.type);
+  printf("Time: ");
+  printtime(data.time);
+  printf("Message: %s\n", data.string);
+}
+
+// Utility to print all logs in the list
+void printlist() {
+  printf("\nPrinting all Messages:\n");
+  log_t * current = headptr;
+
+  while(current != NULL) {
+    printdata(current->item);
+    current = current->next;
+    printf("\n");
+  }
+}
+
+// Print the time from time_t formatted in readable hh:mm:ss format
+void printtime(time_t tm) {
+  time(&tm);
+
+  struct tm *tp = localtime(&tm);
+
+  printf("%.2d:%.2d:%.2d\n", tp->tm_hour, tp->tm_min, tp->tm_sec);
+}
+
+// Return char string formatted in hh:mm:ss to add to messages
+char * gettime(time_t tm) {
+  time(&tm);
+  struct tm *tp = localtime(&tm);
+
+  char * buf[9];
+  sprintf(*buf, "%.2d:%.2d:%.2d", tp->tm_hour, tp->tm_min, tp->tm_sec);
+  printf("%s\n", *buf);
+
+  return *buf;
 }
