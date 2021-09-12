@@ -1,5 +1,14 @@
 #include <log.h>
 
+// Create Log list structure
+typedef struct list_struct {
+  data_t item;
+  struct list_struct *next;
+} log_t;
+
+static log_t *headptr = NULL;
+static log_t *tailptr = NULL;
+
 /**
  * - creates the data structure data_t by adding the timestamp to the supplied parameters message type and message string,
  * - and inserts a copy of the data structure at the end of the list.
