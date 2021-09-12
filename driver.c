@@ -79,5 +79,16 @@ int main(int argc, char** argv) {
 
   printlist();
 
+  printf("Getting messages log.\n");
+  char * full_log = getlog();
+
+  printf("Full log: %s\n", full_log);
+
+  printf("\nClearing message log.\n");
+
+  clearlog();
+
+  printlist();
+
   return 0;
 }

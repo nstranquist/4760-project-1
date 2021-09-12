@@ -118,7 +118,31 @@ int savelog(char * filename) {
  * and returns a pointer to the string. It is the responsibility of the calling program to free this memory when necessary.
  */
 char * getlog() {
-  return "Wow";
+  log_t * current = headptr;
+  int length = 0;
+  char * log = NULL;
+
+  while(current != NULL) {
+    length = length + strlen(current->item.string) + 1; // add 1 for space between messages
+    current = current->next;
+  }
+
+  log = malloc(length);
+
+  if(log == NULL) {
+    perror("Error: Log could not be allocated");
+    return NULL;
+  }
+
+  current = headptr;
+
+  while(current != NULL) {
+    strcat(log, current->item.string);
+    strcat(log, " ");
+    current = current->next;
+  }
+
+  return log;
 }
 
 /**
