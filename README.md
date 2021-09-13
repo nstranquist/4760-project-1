@@ -1,9 +1,9 @@
 # 4760 Operating Systems - Project 1
 
-Your README file should consist,
-at a minimum, of a description of how I should compile and run your project, any outstanding problems that it still has, and
-any problems you encountered
+Nico Stranquist
 
-Your Makefile should use suffix-rules or pattern-rules and have an option to clean up object
-files.
+### Compiling the project
 
+To compile this project, run `make` in the project directory. After running this, to create the static library, uncomment the `log` command and comment out the `driver` command in the makefile. Then run `make` again.
+
+To run, use `./driver` to use
