@@ -16,6 +16,8 @@ char * filename = "messages.log";
 
 int main(int argc, char** argv) {
   int option;
+  int print_messages = 0;
+  int random_seconds = 0;
 
   // Get the command line arguments
   // optstring is simply  a list of characters, 
@@ -49,6 +51,9 @@ int main(int argc, char** argv) {
         int random =  rand() % (upper - lower + 1) + lower;
         printf("Random number generated: %d\n", random);
 
+        random_seconds = random;
+        print_messages = 1;
+
         break;
       default:
         printf("?: Unknown option\n");
@@ -65,15 +70,50 @@ int main(int argc, char** argv) {
     printf("No filename provided. Using default name: %s\n", filename);
   }
 
+  if(print_messages == 1) {
+    FILE * fp = fopen(filename, "r");
+
+    if(fp == NULL) {
+      perror("Error opening the file.");
+      return -1;
+    }
+
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    // read file line by line
+    while ((read = getline(&line, &len, fp)) != -1) {
+      printf("%s", line);
+      sleep(random_seconds);
+    }
+
+    printf("All messages from the file have been read.\n");
+
+    fclose(fp);
+
+    // exit after reading all lines
+    return 0;
+  }
+
+  // Demonstrate functionality in driver.
   printf("Adding a new message\n");
 
   char type = 'E';
   char * msg = "This is a test message";
   addmsg(type, msg);
 
-  type = 'W';
-  msg = "This is another test message";
-  addmsg(type, msg);
+  printf("Saving log to disk.\n");
+  // savelog(filename);
+  savelog(filename);
+
+  char next_type = 'W';
+  char * next_msg = "This is another test message";
+
+  addmsg(next_type, next_msg);
+  printf("finished adding second message\n");
+
+  savelog(filename);
 
   printf("Printing all messages in list\n");
 

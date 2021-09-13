@@ -37,7 +37,6 @@ int addmsg (const char type, const char * msg) {
   printf("Message received: %s\n", msg);
 
   // Get formatted time
-  // char * time_str = gettime(tm);
   time_t tm = time(NULL);
   time(&tm);
   struct tm *tp = localtime(&tm);
@@ -45,33 +44,42 @@ int addmsg (const char type, const char * msg) {
   char time_str [9];
   sprintf(time_str, "%.2d:%.2d:%.2d", tp->tm_hour, tp->tm_min, tp->tm_sec);
   printf("Time: %s\n", time_str);
-  // char time_str = gettime();
 
-  int msg_length = strlen(msg) + strlen(time_str) + 1;
+  // get message text, add type message to msg
+  char * type_string;
+  switch(type) {
+    case 'I':
+      type_string = "INFO";
+      break;
+    case 'W':
+      type_string = "WARNING";
+      break;
+    case 'E':
+      type_string = "ERROR";
+      break;
+    case 'F':
+      type_string = "FATAL";
+      break;
+    default:
+      perror("Error: Message Type is invalid.");
+      return -1;
+  }
+
+  int msg_length = strlen(type_string) + strlen(msg) + strlen(time_str) + 5;
 
   // Populate data structure
   new_data->time = tm;
   new_data->type = type;
-  new_data->string = malloc(msg_length);
+  new_data->string = (char*)malloc(msg_length * sizeof(char));
 
-  // add type to msg
-  strcpy(new_data->string, &type);
-  strcat(new_data->string, ": ");
+  // Add timestamp to message and type and message string parameters
+  sprintf(new_data->string, "%s: %s - %s", type_string, msg, time_str);
   
-  // add msg to msg
-  strcat(new_data->string, msg);
-  strcat(new_data->string, " - ");
-
-  // add time_str to msg
-  strcat(new_data->string, time_str);
-
   // print new_data string
   printf("New data: %s\n", new_data->string);
 
-  // Add timestamp to message and type and message string parameters
-
-  // Add message to end of list
-  log_t * new_node = malloc(sizeof(log_t));
+  // allocate space for log_t
+  log_t * new_node = malloc(sizeof(log_t) + 1);
   new_node->item = *new_data;
   new_node->next = NULL;
   
@@ -81,7 +89,7 @@ int addmsg (const char type, const char * msg) {
     tailptr->next = new_node;
   }
   tailptr = new_node;
-
+  printf("printing data\n");
   printdata(*new_data);
 
   if (new_data->string == NULL) {
@@ -94,7 +102,7 @@ int addmsg (const char type, const char * msg) {
 }
 
 /**
- * The savelog function saves the logged message to a disk file.
+ * The savelog function saves the logged messages to a disk file.
  */
 int savelog(char * filename) {
   FILE * fp = fopen(filename, "w");
@@ -104,11 +112,16 @@ int savelog(char * filename) {
     return -1;
   }
 
-  char * log = getlog();
-
-  fprintf(fp, "%s", log);
+  // Save each item in log list to file
+  log_t * current = headptr;
+  while(current != NULL) {
+    fprintf(fp, "%s\n", current->item.string);
+    current = current->next;
+  }
 
   fclose(fp);
+
+  printf("done saving");
 
   return 0;
 }
@@ -118,21 +131,30 @@ int savelog(char * filename) {
  * and returns a pointer to the string. It is the responsibility of the calling program to free this memory when necessary.
  */
 char * getlog() {
+  // get length of string in each data in log list
+  size_t length = 0;
   log_t * current = headptr;
-  int length = 0;
-  char * log = NULL;
-
   while(current != NULL) {
-    length = length + strlen(current->item.string) + 1; // add 1 for space between messages
+    length += strlen(current->item.string) + 1;
     current = current->next;
   }
 
-  log = malloc(length);
+  // log_t * current = headptr;
+  // // size_t length = 0;
+  char* log = (char*) malloc((length+1)*sizeof(char)); /*+1 for '\0' character */
 
-  if(log == NULL) {
-    perror("Error: Log could not be allocated");
-    return NULL;
-  }
+  // // while(current != NULL) {
+  // //   printf("Current String: %s\n", current->item.string);
+  // //   length += strlen(current->item.string) + 2; // add 1 for space between messages
+  // //   current = current->next;
+  // // }
+
+  // log = malloc(length);
+  
+  // // if(log == NULL) {
+  // //   perror("Error: Log could not be allocated");
+  // //   return NULL;
+  // // }
 
   current = headptr;
 
@@ -170,7 +192,7 @@ void printdata(data_t data) {
   printf("Type: %c\n", data.type);
   printf("Time: ");
   printtime(data.time);
-  printf("Message: %s\n", data.string);
+  printf("Message: %s\n\n", data.string);
 }
 
 // Utility to print all logs in the list
